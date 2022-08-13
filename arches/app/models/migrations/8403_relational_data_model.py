@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("models", "8403_bulk_index_queue"),
+        ("models", "8578_rr_load_performance"),
     ]
 
     operations = [
@@ -32,7 +32,8 @@ class Migration(migrations.Migration):
                         delete from geojson_geometries where tileid = old.tileid;
                         delete from resource_x_resource where tileid = old.tileid;
                         delete from public.tiles where tileid = old.tileid;
-                        insert into bulk_index_queue values (resourceinstanceid, current_timestamp) on conflict do nothing;
+                        insert into bulk_index_queue (resourceinstanceid, createddate)
+                            values (old.resourceinstanceid, current_timestamp) on conflict do nothing;
                         insert into edit_log (
                             resourceclassid,
                             resourceinstanceid,
@@ -99,7 +100,8 @@ class Migration(migrations.Migration):
                         end if;
                         perform refresh_tile_geojson_geometries(tile_id);
                         perform __arches_refresh_tile_resource_relationships(tile_id);
-                        insert into bulk_index_queue values (resourceinstanceid, current_timestamp) on conflict do nothing;
+                        insert into bulk_index_queue (resourceinstanceid, createddate)
+                            values (new.resourceinstanceid, current_timestamp) on conflict do nothing;
                         insert into edit_log (
                             resourceclassid,
                             resourceinstanceid,
@@ -140,7 +142,8 @@ class Migration(migrations.Migration):
                     select obj_description(view_namespace::regclass, 'pg_class') into model_id;
                     if (TG_OP = 'DELETE') then
                         delete from public.resource_instances where resourceinstanceid = old.resourceinstanceid;
-                        insert into bulk_index_queue values (resourceinstanceid, current_timestamp) on conflict do nothing;
+                        insert into bulk_index_queue (resourceinstanceid, createddate)
+                            values (old.resourceinstanceid, current_timestamp) on conflict do nothing;
                         insert into edit_log (
                             resourceclassid,
                             resourceinstanceid,
@@ -192,7 +195,8 @@ class Migration(migrations.Migration):
                                 now()
                             );
                         end if;
-                        insert into bulk_index_queue values (resourceinstanceid, current_timestamp) on conflict do nothing;
+                        insert into bulk_index_queue (resourceinstanceid, createddate)
+                            values (instance_id, current_timestamp) on conflict do nothing;
                         insert into edit_log (
                             resourceclassid,
                             resourceinstanceid,
@@ -234,6 +238,7 @@ class Migration(migrations.Migration):
                         delete from geojson_geometries where tileid = old.tileid;
                         delete from resource_x_resource where tileid = old.tileid;
                         delete from public.tiles where tileid = old.tileid;
+                        insert into bulk_index_queue values (resourceinstanceid, current_timestamp) on conflict do nothing;
                         insert into edit_log (
                             resourceclassid,
                             resourceinstanceid,
@@ -300,6 +305,7 @@ class Migration(migrations.Migration):
                         end if;
                         perform refresh_tile_geojson_geometries(tile_id);
                         perform __arches_refresh_tile_resource_relationships(tile_id);
+                        insert into bulk_index_queue values (resourceinstanceid, current_timestamp) on conflict do nothing;
                         insert into edit_log (
                             resourceclassid,
                             resourceinstanceid,
@@ -340,6 +346,7 @@ class Migration(migrations.Migration):
                     select obj_description(view_namespace::regclass, 'pg_class') into model_id;
                     if (TG_OP = 'DELETE') then
                         delete from public.resource_instances where resourceinstanceid = old.resourceinstanceid;
+                        insert into bulk_index_queue values (resourceinstanceid, current_timestamp) on conflict do nothing;
                         insert into edit_log (
                             resourceclassid,
                             resourceinstanceid,
@@ -391,6 +398,7 @@ class Migration(migrations.Migration):
                                 now()
                             );
                         end if;
+                        insert into bulk_index_queue values (resourceinstanceid, current_timestamp) on conflict do nothing;
                         insert into edit_log (
                             resourceclassid,
                             resourceinstanceid,
