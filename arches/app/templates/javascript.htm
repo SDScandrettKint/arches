@@ -358,7 +358,8 @@
                 'is_resource_layer': false,
                 'centerx': {{ map_layer.centerx|default_if_none:"null"|unlocalize }},
                 'centery': {{ map_layer.centery|default_if_none:"null"|unlocalize }},
-                'zoom': {{ map_layer.zoom|default_if_none:"null"|unlocalize }}
+                'zoom': {{ map_layer.zoom|default_if_none:"null"|unlocalize }},
+                'layersortorder': {{map_layer.layersortorder|default_if_none:"null"|unlocalize}}
             },{% endfor %}{% for resource_map_layer in resource_map_layers %}{
                 'maplayerid': '{{ resource_map_layer.nodeid }}',
                 'name': '{{ resource_map_layer.name }}',
@@ -369,7 +370,8 @@
                 'legend': '{{ resource_map_layer.legend | escapejs  }}',
                 'activated': true,
                 'addtomap': {{ resource_map_layer.addtomap|lower }},
-                'is_resource_layer': true
+                'is_resource_layer': true,
+                'layersortorder': {{resource_map_layer.layersortorder|default_if_none:"null"|unlocalize}}
             },{% endfor %}{% endautoescape %}],
             conceptCollections: [{% autoescape off %}{% for concept_collection in concept_collections %}{
                 'label': '{{ concept_collection.label | escapejs }}',

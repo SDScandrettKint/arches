@@ -770,6 +770,8 @@ class GeojsonFeatureCollectionDataType(BaseDataType):
 
         layer_legend = node.config["layerLegend"]
 
+        layersortorder = node.layersortorder
+
         if not preview and node.config["advancedStyling"]:
             try:
                 style = json.loads(node.config["advancedStyle"])
@@ -1156,6 +1158,7 @@ class GeojsonFeatureCollectionDataType(BaseDataType):
             "icon": layer_icon,
             "legend": layer_legend,
             "addtomap": node.config["addToMap"],
+            "layersortorder": layersortorder
         }
 
     def after_update_all(self, tile=None):

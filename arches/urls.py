@@ -73,6 +73,8 @@ from arches.app.models.system_settings import settings
 from django.views.decorators.cache import cache_page
 from django.urls import path
 
+from arches.app.views.reorder_maps import ReorderMaps
+
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
 
@@ -298,6 +300,7 @@ urlpatterns = [
     url(r"^etl-manager$", ETLManagerView.as_view(), name="etl_manager"),
     url(r"^clear-user-permission-cache", ClearUserPermissionCache.as_view(), name="clear_user_permission_cache"),
     url(r"^transform-edtf-for-tile", api.TransformEdtfForTile.as_view(), name="transform_edtf_for_tile"),
+    url(r"^reorder_maps", ReorderMaps.as_view(), name ="reorder_maps"),
 ]
 
 if settings.DEBUG:

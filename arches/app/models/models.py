@@ -563,6 +563,7 @@ class Node(models.Model):
     exportable = models.BooleanField(default=False, null=True)
     alias = models.TextField(blank=True, null=True)
     hascustomalias = models.BooleanField(default=False)
+    layersortorder = models.IntegerField(blank=True, null=True, default=None)
 
     def get_child_nodes_and_edges(self):
         """
@@ -1214,6 +1215,7 @@ class MapLayer(models.Model):
     zoom = models.FloatField(blank=True, null=True)
     legend = models.TextField(blank=True, null=True)
     searchonly = models.BooleanField(default=False)
+    layersortorder = models.IntegerField(blank=True, null=True, default=None)
 
     @property
     def layer_json(self):

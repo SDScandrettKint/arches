@@ -132,6 +132,7 @@ define([
         this.overlays = params.overlaysObservable || ko.observableArray();
 
         var mapLayers = params.mapLayers || arches.mapLayers;
+        mapLayers = mapLayers.sort((a, b) => parseInt(a.layersortorder) - parseInt(b.layersortorder))
         mapLayers.forEach(function(layer) {
             if (!layer.isoverlay) {
                 if (!params.basemaps) self.basemaps.push(layer);
@@ -454,6 +455,28 @@ define([
                 });
             });
         };
+        
+        ko.bindingHandlers.sortable.afterMove = function(e) {
+            const map_order = ko.observableArray(e.sourceParent())
+            var new_order = []
+           
+            for (let i = 0; i < map_order().length; i++) {
+                const element = map_order()[i];
+                new_order.push({
+                    "maplayerid": element.maplayerid,
+                    "layersortorder": i,
+                    "is_resource_layer": element.is_resource_layer,
+                })
+            }
+            
+            $.ajax({
+                type: "POST",
+                data: JSON.stringify({
+                    map_order: new_order
+                }),
+                url: arches.urls.root + "reorder_maps",
+            })
+        }
 
         this.setupMap = function(map) {
             map.on('load', function() {
