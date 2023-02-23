@@ -133,6 +133,7 @@ define([
 
         var mapLayers = params.mapLayers || arches.mapLayers;
         mapLayers = mapLayers.sort((a, b) => parseInt(a.layersortorder) - parseInt(b.layersortorder))
+        console.log(mapLayers)
         mapLayers.forEach(function(layer) {
             if (!layer.isoverlay) {
                 if (!params.basemaps) self.basemaps.push(layer);
@@ -459,15 +460,17 @@ define([
         ko.bindingHandlers.sortable.afterMove = function(e) {
             const map_order = ko.observableArray(e.sourceParent())
             var new_order = []
-           
+            console.log(new_order)
             for (let i = 0; i < map_order().length; i++) {
                 const element = map_order()[i];
                 new_order.push({
                     "maplayerid": element.maplayerid,
                     "layersortorder": i,
-                    "is_resource_layer": element.is_resource_layer,
+                    //"is_resource_layer": element.is_resource_layer,
+                    "name": element.name,
                 })
             }
+            console.log(new_order)
             
             $.ajax({
                 type: "POST",
