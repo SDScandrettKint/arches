@@ -133,9 +133,8 @@ define([
 
         var mapLayers = params.mapLayers || arches.mapLayers;
 
-        mapLayers.sort(function(a, b) {
-            return (b != null) - (a != null) || a.layersortorder - b.layersortorder;
-          }) // So basemaps with null aren't involved in overlay sort
+        mapLayers = mapLayers.sort((a, b) => a.layersortorder - b.layersortorder)
+        // So basemaps with null aren't involved in overlay sort
 
         mapLayers.forEach(function(layer) {
             if (!layer.isoverlay) {
