@@ -44,6 +44,7 @@
         <a class="jstree-anchor" href="#" tabindex="-1" data-bind="click: graphTree.selectItem.bind(graphTree), css:{'jstree-clicked': node.selected, 'child-selected': graphTree.isChildSelected(node), 'func-node': graphTree.isFuncNode(node), 'filtered': graphTree.filter().length > 0 && !node.filtered()}">
             <span class="spacer"></span>
             <i data-bind="css: 'node.iconclass'" role="presentation"></i>
+            
             <!-- ko if: node.exportable -->
             <i class="jstree-leading-icon fa fa-download" role="presentation" data-toggle="tooltip" data-placement="top" data-container="body" data-original-title="{% trans 'Node is exportable in search' %}"></i>
             <!-- /ko -->

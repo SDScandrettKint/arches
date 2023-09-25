@@ -14,7 +14,6 @@ define([
         * @constructor
         * @name GraphTree
         */
-        
         filterFunction: function(){
             var filter = this.filter().toLowerCase();
             this.items().forEach(function(item){
