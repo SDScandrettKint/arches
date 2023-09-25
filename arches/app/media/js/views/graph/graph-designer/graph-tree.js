@@ -212,11 +212,6 @@ define([
             });
         },
 
-        copyNodeId: function(node, e) {
-            var nodeId = node.nodeid
-            navigator.clipboard.writeText(nodeId);
-        },
-
         beforeMove: function(e) {
             e.cancelDrop = (e.sourceParent!==e.targetParent);
         },
@@ -253,6 +248,12 @@ define([
         },
         toggleGrid: function(){
             this.showGrid(!this.showGrid());
+        },
+
+        copyNodeId: function(node, e) {
+            $('[data-toggle="tooltip"]').tooltip();
+            var nodeId = node.nodeid
+            navigator.clipboard.writeText(nodeId);
         }
 
     });
