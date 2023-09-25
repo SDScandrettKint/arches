@@ -14,7 +14,7 @@ define([
         * @constructor
         * @name GraphTree
         */
-
+        
         filterFunction: function(){
             var filter = this.filter().toLowerCase();
             this.items().forEach(function(item){
@@ -212,6 +212,11 @@ define([
             });
         },
 
+        copyNodeId: function(node, e) {
+            var nodeId = node.nodeid
+            navigator.clipboard.writeText(nodeId);
+        },
+
         beforeMove: function(e) {
             e.cancelDrop = (e.sourceParent!==e.targetParent);
         },
@@ -249,6 +254,7 @@ define([
         toggleGrid: function(){
             this.showGrid(!this.showGrid());
         }
+
     });
     return GraphTree;
 });
