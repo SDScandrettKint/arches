@@ -251,7 +251,6 @@ define([
         },
 
         copyNodeId: function(node, e) {
-            $('[data-toggle="tooltip"]').tooltip();
             var nodeId = node.nodeid
             navigator.clipboard.writeText(nodeId);
         }
