@@ -73,7 +73,7 @@ def _buffer(geojson, width=0, unit="ft"):
                 4326)""",
                 (
                     geom.hex.decode("utf-8"),
-                    settings.ANALYSIS_COORDINATE_SYSTEM_SRID,
+                    int(settings.ANALYSIS_COORDINATE_SYSTEM_SRID),
                     width,
                 ),
             )
