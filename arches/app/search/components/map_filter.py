@@ -62,6 +62,13 @@ def _buffer(geojson, width=0, unit="ft"):
     except Exception:
         width = 0
 
+    try:
+        int(settings.ANALYSIS_COORDINATE_SYSTEM_SRID)
+    except Exception:
+        raise ValueError(
+            "Settings ANALYSIS_COORDINATE_SYSTEM_SRID value is not a number."
+        )
+
     if width > 0:
         if unit == "ft":
             width = width / 3.28084
