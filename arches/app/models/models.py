@@ -1623,16 +1623,19 @@ class TileModel(models.Model):  # Tile
                 if not str(node.pk) in self.data:
                     self.data[str(node.pk)] = None
 
-            sortorder_max = TileModel.objects.filter(
-                nodegroup_id=self.nodegroup_id,
-                resourceinstance_id=self.resourceinstance_id,
-            ).aggregate(Max("sortorder"))["sortorder__max"]
-            self.sortorder = sortorder_max + 1 if sortorder_max is not None else 0
+            self.set_next_sort_order()
             add_to_update_fields(kwargs, "sortorder")
         if not self.tileid:
             self.tileid = uuid.uuid4()
             add_to_update_fields(kwargs, "tileid")
         super(TileModel, self).save(**kwargs)  # Call the "real" save() method.
+
+    def set_next_sort_order(self):
+        sortorder_max = self.__class__.objects.filter(
+            nodegroup_id=self.nodegroup_id,
+            resourceinstance_id=self.resourceinstance_id,
+        ).aggregate(Max("sortorder"))["sortorder__max"]
+        self.sortorder = sortorder_max + 1 if sortorder_max is not None else 0
 
     def serialize(self, fields=None, exclude=["nodegroup"], **kwargs):
         return JSONSerializer().handle_model(

@@ -29,8 +29,7 @@ from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.utils.translation import gettext as _
 from django.utils.translation import get_language
 from arches.app.models import models
-from arches.app.models.models import EditLog
-from arches.app.models.models import TileModel
+from arches.app.models.models import EditLog, TileModel
 from arches.app.models.concept import get_preflabel_from_valueid
 from arches.app.models.system_settings import settings
 from arches.app.search.search_engine_factory import SearchEngineInstance as se
