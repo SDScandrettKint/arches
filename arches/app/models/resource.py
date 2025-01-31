@@ -30,6 +30,7 @@ from django.utils.translation import gettext as _
 from django.utils.translation import get_language
 from arches.app.models import models
 from arches.app.models.models import EditLog, TileModel
+from arches.app.models.utils import add_to_update_fields
 from arches.app.models.concept import get_preflabel_from_valueid
 from arches.app.models.system_settings import settings
 from arches.app.search.search_engine_factory import SearchEngineInstance as se
@@ -280,8 +281,7 @@ class Resource(models.ResourceInstance):
 
         if not self.principaluser_id and user:
             self.principaluser_id = user.id
-            # TODO: this is not updating update_fields in kwargs
-            # Fix when adding user argument to Resource.save().
+            add_to_update_fields(kwargs, "principaluser_id")
 
         super(Resource, self).save(**kwargs)
 
