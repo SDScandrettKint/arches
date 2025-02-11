@@ -7,7 +7,7 @@ def looks_like_api_call(request):
         return True
     if not request.resolver_match:
         return False
-    if "api." in request.resolver_match.func.__module__:
+    if ".api." in request.resolver_match.func.__module__:
         return True
     if (
         request.resolver_match.func.__module__
