@@ -877,17 +877,19 @@ class Tile(models.TileModel):
         return ret
 
 
-class TileValidationError(Exception):
+class TileValidationError(ValidationError):
     def __init__(self, message, code=None):
+        super().__init__(message)
         self.title = _("Tile Validation Error")
-        self.message = message
         self.code = code
 
     def __str__(self):
+        if hasattr(self, "messages"):
+            return repr(self.messages)
         return repr(self.message)
 
 
 class TileCardinalityError(TileValidationError):
     def __init__(self, message, code=None):
-        super(TileCardinalityError, self).__init__(message, code)
+        super().__init__(message, code)
         self.title = _("Tile Cardinality Error")
