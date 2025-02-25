@@ -523,6 +523,13 @@ class NumberDataType(BaseDataType):
                 "provisional": provisional,
             }
         )
+        document["strings"].append(
+            {
+                "string": str(nodevalue),
+                "nodegroup_id": tile.nodegroup_id,
+                "provisional": provisional,
+            }
+        )
 
     def append_search_filters(self, value, node, query, request):
         try:
@@ -571,6 +578,13 @@ class NumberDataType(BaseDataType):
     def default_es_mapping(self):
         mapping = {"type": "double"}
         return mapping
+
+    def get_search_terms(self, nodevalue, nodeid=None):
+        terms = []
+        if nodevalue:
+            terms.append(SearchTerm(value=nodevalue))
+
+        return terms
 
 
 class BooleanDataType(BaseDataType):
@@ -1810,7 +1824,7 @@ class DomainDataType(BaseDomainDataType):
         This snippet will be used in a SQL UPDATE statement.
         """
 
-        sql = i18n_json_field.attname
+        sql = i18n_json_field.attname or "'{}'::jsonb"
         for prop, value in i18n_json_field.raw_value.items():
             escaped_value = json.dumps(value).replace("%", "%%").replace("'", "''")
             if prop == "options":
@@ -2361,7 +2375,6 @@ class ResourceInstanceListDataType(ResourceInstanceDataType):
             Resource,
         )  # import here rather than top to avoid circular import
 
-        resourceid = None
         data = self.get_tile_data(tile)
         if data:
             nodevalue = self.get_nodevalues(data[str(node.nodeid)])
@@ -2374,13 +2387,16 @@ class ResourceInstanceListDataType(ResourceInstanceDataType):
                 except (TypeError, ValueError, KeyError):
                     pass
             other_resources = Resource.objects.filter(pk__in=other_resource_ids)
-            for resourceid in other_resource_ids:
+            for resourceXresource in nodevalue:
+                tileResourceId = uuid.UUID(resourceXresource["resourceId"])
                 for candidate in other_resources:
-                    if candidate.pk == resourceid:
+                    if candidate.pk == tileResourceId:
                         related_resource = candidate
                         break
                 else:
-                    logger.info(f'Resource with id "{resourceid}" not in the system.')
+                    logger.info(
+                        f'Resource with id "{tileResourceId}" not in the system.'
+                    )
                     continue
                 displayname = related_resource.displayname()
                 resourceXresource["display_value"] = displayname

@@ -435,7 +435,7 @@ class Tile(models.TileModel):
             datatype = self.datatype_factory.get_instance(node.datatype)
             datatype.post_tile_save(self, nodeid, request)
 
-    def save(self, *args, **kwargs):
+    def save(self, **kwargs):
         request = kwargs.pop("request", None)
         index = kwargs.pop("index", True)
         user = kwargs.pop("user", None)
@@ -509,7 +509,7 @@ class Tile(models.TileModel):
             if user is not None:
                 self.validate([], request=request)
 
-            super(Tile, self).save(*args, **kwargs)
+            super(Tile, self).save(**kwargs)
             # We have to save the edit log record after calling save so that the
             # resource's displayname changes are avaliable
             user = {} if user is None else user
@@ -543,7 +543,6 @@ class Tile(models.TileModel):
                 tile.resourceinstance = self.resourceinstance
                 tile.parenttile = self
                 tile.save(
-                    *args,
                     request=request,
                     resource_creation=resource_creation,
                     index=False,
@@ -808,7 +807,7 @@ class Tile(models.TileModel):
             )
             logger.warning(e)
 
-    def __preDelete(self, request):
+    def __preDelete(self, request=None):
         try:
             for function in self._getFunctionClassInstances():
                 try:
@@ -878,17 +877,19 @@ class Tile(models.TileModel):
         return ret
 
 
-class TileValidationError(Exception):
+class TileValidationError(ValidationError):
     def __init__(self, message, code=None):
+        super().__init__(message)
         self.title = _("Tile Validation Error")
-        self.message = message
         self.code = code
 
     def __str__(self):
+        if hasattr(self, "messages"):
+            return repr(self.messages)
         return repr(self.message)
 
 
 class TileCardinalityError(TileValidationError):
     def __init__(self, message, code=None):
-        super(TileCardinalityError, self).__init__(message, code)
+        super().__init__(message, code)
         self.title = _("Tile Cardinality Error")

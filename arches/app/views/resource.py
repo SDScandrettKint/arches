@@ -36,7 +36,6 @@ from django.utils import translation
 
 from arches.app.models import models
 from arches.app.models.card import Card
-from arches.app.models.graph import Graph
 from arches.app.models.tile import Tile
 from arches.app.models.resource import Resource
 from arches.app.models.system_settings import settings
@@ -951,21 +950,15 @@ class ResourceReportView(MapBaseManagerView):
     def get(self, request, resourceid=None):
         resource = (
             models.ResourceInstance.objects.filter(pk=resourceid)
-            .select_related("resource_instance_lifecycle_state")
-            .get()
+            .select_related("graph", "resource_instance_lifecycle_state")
+            .first()
         )
-        graph = Graph.objects.get(graphid=resource.graph_id)
+        if not resource:
+            raise Http404(_("Resource not found"))
+        graph = resource.graph
         graph_has_different_publication = bool(
             resource.graph_publication_id != graph.publication_id
         )
-
-        try:
-            map_markers = models.MapMarker.objects.all()
-            geocoding_providers = models.Geocoder.objects.all()
-        except AttributeError:
-            raise Http404(
-                _("No active report template is available for this resource.")
-            )
 
         context = self.get_context_data(
             main_script="views/resource/report",
@@ -973,8 +966,8 @@ class ResourceReportView(MapBaseManagerView):
             report_templates=models.ReportTemplate.objects.all(),
             card_components=models.CardComponent.objects.all(),
             widgets=models.Widget.objects.all(),
-            map_markers=map_markers,
-            geocoding_providers=geocoding_providers,
+            map_markers=models.MapMarker.objects.all(),
+            geocoding_providers=models.Geocoder.objects.all(),
             graph_has_different_publication=graph_has_different_publication,
             graph_has_different_publication_and_user_has_insufficient_permissions=bool(
                 graph_has_different_publication
@@ -1056,7 +1049,7 @@ class RelatedResourcesView(BaseManagerView):
 
         return ret
 
-    def get(self, request, resourceid=None):
+    def get(self, request, resourceid=None, include_rr_count=True):
         ret = {}
 
         if self.action == "get_candidates":
@@ -1103,6 +1096,7 @@ class RelatedResourcesView(BaseManagerView):
                     user=request.user,
                     resourceinstance_graphid=resourceinstance_graphid,
                     graphs=self.graphs,
+                    include_rr_count=include_rr_count,
                 )
 
                 ret = self.paginate_related_resources(
@@ -1114,6 +1108,7 @@ class RelatedResourcesView(BaseManagerView):
                     user=request.user,
                     resourceinstance_graphid=resourceinstance_graphid,
                     graphs=self.graphs,
+                    include_rr_count=include_rr_count,
                 )
 
         return JSONResponse(ret)

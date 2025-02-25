@@ -21,11 +21,9 @@ import uuid
 from arches.app.models.graph import Graph
 from arches.app.models.models import (
     CardXNodeXWidget,
-    NodeGroup,
     DDataType,
     Widget,
     ReportTemplate,
-    Function,
     Ontology,
     OntologyClass,
     GraphXPublishedGraph,
@@ -176,8 +174,18 @@ def import_graph(graphs, overwrite_graphs=True, user=None):
                         card_x_node_x_widget["config"] = check_default_configs(
                             default_config, card_x_node_x_widget_config
                         )
-                        cardxnodexwidget = CardXNodeXWidget.objects.update_or_create(
-                            **card_x_node_x_widget
+                        CardXNodeXWidget.objects.update_or_create(
+                            # Only check the combination of unique fields.
+                            # Comparing the entire object against the database
+                            # may fail because the incoming json may differ
+                            # slightly from the database representation, e.g.
+                            # 'width': '100%' -> 'width': '100%%' in db (escaped)
+                            # or 'placeholder': 'Enter text'
+                            # -> 'placeholder': {'en': 'Enter text'} in db
+                            card_id=card_x_node_x_widget["card_id"],
+                            node_id=card_x_node_x_widget["node_id"],
+                            widget_id=card_x_node_x_widget["widget_id"],
+                            defaults=card_x_node_x_widget,
                         )
 
                 with transaction.atomic():

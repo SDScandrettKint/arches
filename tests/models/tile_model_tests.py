@@ -16,15 +16,14 @@ You should have received a copy of the GNU Affero General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
-from uuid import UUID
+from uuid import UUID, uuid4
 from arches.app.utils.betterJSONSerializer import JSONSerializer
 from tests.base_test import ArchesTestCase
 from django.db import connection
 from django.contrib.auth.models import User
-from django.db.utils import ProgrammingError
 from django.http import HttpRequest
 from arches.app.models.graph import Graph
-from arches.app.models.tile import Tile, TileValidationError
+from arches.app.models.tile import Tile, TileCardinalityError, TileValidationError
 from arches.app.models.resource import Resource
 from arches.app.models.models import (
     CardModel,
@@ -73,6 +72,33 @@ class TileTests(ArchesTestCase):
 
         with connection.cursor() as cursor:
             cursor.execute(sql)
+
+    def test_repr(self):
+        tileid = uuid4()
+        nodegroupid = "99999999-0000-0000-0000-000000000001"
+        tile = TileModel.objects.create(
+            pk=tileid,
+            resourceinstance_id="40000000-0000-0000-0000-000000000000",
+            nodegroup_id=nodegroupid,
+        )
+
+        self.assertEqual(f"{tile!r}", f"<None ({tileid})>")
+
+        # Roundabout way of creating the grouping node given incomplete setup.
+        grouping_node = Node.objects.create(
+            pk=nodegroupid,
+            graph=tile.resourceinstance.graph,
+            nodegroup_id=nodegroupid,
+            alias="Statement",
+            datatype="semantic",
+            istopnode=False,
+        )
+        nodegroup = grouping_node.nodegroup
+        nodegroup.grouping_node = grouping_node
+        nodegroup.save()
+        tile.refresh_from_db()
+
+        self.assertEqual(f"{tile!r}", f"<Statement ({tileid})>")
 
     def test_load_from_python_dict(self):
         """
@@ -360,7 +386,7 @@ class TileTests(ArchesTestCase):
     def test_tile_cardinality(self):
         """
         Tests that the tile is not saved if the cardinality is violated
-        by testin to save a tile with the same values as existing one
+        by testing to save a tile with the same values as an existing one.
 
         """
 
@@ -394,7 +420,7 @@ class TileTests(ArchesTestCase):
         }
         second_tile = Tile(second_json)
 
-        with self.assertRaises(ProgrammingError):
+        with self.assertRaises(TileCardinalityError):
             second_tile.save(index=False, request=request)
 
     def test_apply_provisional_edit(self):
@@ -732,6 +758,7 @@ class TileTests(ArchesTestCase):
             pk=UUID("41111111-0000-0000-0000-000000000000")
         )
         required_file_list_node = Node(
+            pk=node_group.pk,
             graph=graph,
             name="Required file list",
             datatype="file-list",
@@ -740,6 +767,8 @@ class TileTests(ArchesTestCase):
             istopnode=False,
         )
         required_file_list_node.save()
+        node_group.grouping_node = required_file_list_node
+        node_group.save()
 
         json = {
             "resourceinstance_id": "40000000-0000-0000-0000-000000000000",

@@ -95,7 +95,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
                         </li>
                         {% if user|can_create_resource_instance and user.username != 'anonymous' %}
                             <li>
-                                <a href="{% url 'resource' %}" target="_blank">{% trans "Manage" %}</a>
+                                <a href="{% url 'resource' %}">{% trans "Manage" %}</a>
                             </li>
                         {% endif %}
                         {% if user.username == 'anonymous' %}
